@@ -1,0 +1,14 @@
+<p-sidebar
+  [(visible)]="sidebarVisible"
+  styleClass="w-30rem"
+  [showCloseIcon]="true"
+  [modal]="false"
+>
+  <ng-template pTemplate="header">
+    <span class="font-semibold text-xl">Sidebar</span>
+  </ng-template>
+</p-sidebar>
+<app-navbar
+  (toggleSidebarEvent)="toggleSidebar()"
+></app-navbar>
+

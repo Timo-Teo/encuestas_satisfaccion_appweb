@@ -1,0 +1,25 @@
+<div class="card">
+  <p-menubar [model]="items">
+    <ng-template pTemplate="start">
+      <div class="flex align-items-center gap-2">
+        <p-button
+          icon="pi pi-bars"
+          [rounded]="true"
+          [text]="true"
+          (onClick)="toggleSidebarEvent.emit()"
+        />
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="end">
+      <div class="card flex justify-content-center">
+        <p-treeSelect
+          class="md:w-20rem w-full"
+          containerStyleClass="w-full"
+          [options]="nodes"
+          placeholder="Select Item" />
+      </div>
+    </ng-template>
+
+  </p-menubar>
+</div>
