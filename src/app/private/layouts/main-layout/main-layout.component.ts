@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {SidebarModule} from "primeng/sidebar";
 import {Button} from "primeng/button";
 import {NavbarComponent} from "../../components/navbar/navbar.component";
+import {RouterOutlet} from "@angular/router";
 
 @Component({
   selector: 'app-main-layout',
@@ -10,6 +11,7 @@ import {NavbarComponent} from "../../components/navbar/navbar.component";
     SidebarModule,
     Button,
     NavbarComponent,
+    RouterOutlet,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss'

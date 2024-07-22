@@ -1,0 +1,65 @@
+<p-tabView>
+  <p-tabPanel header="General">
+    <div>
+      <h4>Parámetros generales</h4>
+      <form [formGroup]="formularioEstructura">
+        <p-floatLabel>
+          <input
+            formControlName="nombre"
+            pInputText
+            id="nombre"
+            [ngClass]="{
+            'ng-dirty ng-invalid':  nombre?.invalid || nombre?.dirty,
+            }"
+          />
+          <label for="nombre">Nombre</label>
+        </p-floatLabel>
+        <p-floatLabel>
+          <p-dropdown
+            formControlName="periodo"
+            inputId="periodo"
+            id="periodo"
+            [options]="periodos"
+            optionLabel="nombre"
+            optionValue="id"
+          />
+          <label for="periodo">Periodos</label>
+        </p-floatLabel>
+
+        <p-floatLabel>
+          <p-dropdown
+            formControlName="dependencia"
+            inputId="dependencias"
+            id="dependencias"
+            filterBy="nombre"
+            [filter]="true"
+            [options]="dependencias"
+            optionLabel="nombre"
+            optionValue="id"
+          />
+          <label for="dependencias">Dependencia evaluada</label>
+        </p-floatLabel>
+        <p-floatLabel>
+          <p-dropdown
+            formControlName="vigencia"
+            inputId="vigencia"
+            id="vigencia"
+            [options]="vigencias"
+            placeholder="Vigencia">
+          </p-dropdown>
+          <label for="vigencia">Vigencia</label>
+        </p-floatLabel>
+      </form>
+      <p-button
+        label="Guardar"
+        icon="pi pi-save"
+        (click)="onGuardarFormulario()"
+        [disabled]="formularioEstructura.invalid"
+      ></p-button>
+    </div>
+  </p-tabPanel>
+  <p-tabPanel header="Diseño" *ngIf="habilitarDisenio">
+
+  </p-tabPanel>
+
+</p-tabView>

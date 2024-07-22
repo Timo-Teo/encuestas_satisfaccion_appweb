@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {MenubarModule} from "primeng/menubar";
 import {AvatarModule} from "primeng/avatar";
 import {Button} from "primeng/button";
@@ -8,6 +8,11 @@ import {MenuItem} from "primeng/api";
 import {Usuario} from "../../../common/model/Usuario";
 import {environment} from "../../../../environments/environment";
 import {TreeSelectModule} from "primeng/treeselect";
+import {ToastModule} from "primeng/toast";
+import {BadgeModule} from "primeng/badge";
+import {NgIf} from "@angular/common";
+import {Ripple} from "primeng/ripple";
+import {style} from "@angular/animations";
 
 
 @Component({
@@ -19,66 +24,21 @@ import {TreeSelectModule} from "primeng/treeselect";
     Button,
     SplitButtonModule,
     MenuModule,
-    TreeSelectModule
+    TreeSelectModule,
+    ToastModule,
+    BadgeModule,
+    NgIf,
+    Ripple
   ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
 
   @Output()
   toggleSidebarEvent = new EventEmitter();
-  items: MenuItem[] = [
-    {
-      label: 'Cerrar Sesión',
-      icon: 'pi pi-sign-out',
-      command: () => {
-        console.log('Cerrar Sesión');
-      }
-    }, {
-      separator: true
-    },
-    {
-      label: environment.APP_VERSION,
-      icon: 'pi pi-tag',
-      style: {
-        'font-size': '0.8em'
-      }
-    }
-
-  ];
-
+  items: MenuItem[];
   usuario: Usuario;
-  nodes: any[] = [
-    {
-      key: '1',
-      label: 'Documents',
-      children: [
-        {
-          key: '1-1',
-          label: 'Work'
-        },
-        {
-          key: '1-2',
-          label: 'Home'
-        }
-      ]
-    },
-    {
-      key: '2',
-      label: 'Pictures',
-      children: [
-        {
-          key: '2-1',
-          label: 'barcelona.jpg'
-        },
-        {
-          key: '2-2',
-          label: 'primeui'
-        }
-      ]
-    },
-  ];
 
 
   constructor() {
@@ -94,6 +54,46 @@ export class NavbarComponent {
       password: '123456',
       telefono: '1234567890'
     };
+    this.items = [
+      {
+        label: this.usuario.nombre + ' ' + this.usuario.apellido,
+        icon: 'pi pi-user',
+        items: [
+          {
+            label: 'Ayuda',
+            icon: 'pi pi-question-circle',
+            command: () => {
+              console.log('Ayuda');
+            }
+          },
+          {
+            label: `${environment.APP_VERSION}`,
+            icon: 'pi pi-tag',
+            style: {
+              color: 'gray',
+              fontSize: '0.8em'
+            },
+            iconStyle: {
+              color: 'gray',
+              fontSize: '0.95em'
+            }
+          },
+          {
+            separator: true
+          },
+          {
+            label: 'Cerrar Sesión',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              console.log('Cerrar Sesión');
+            }
+          }
+        ]
+      },
+    ]
+  }
+
+  ngOnInit(): void {
   }
 
 }
