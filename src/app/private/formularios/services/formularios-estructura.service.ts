@@ -4,6 +4,12 @@ import {HttpClient} from "@angular/common/http";
 import {FormularioEstructura} from "../../../common/model/formulario-estructura/FormularioEstructura";
 import {FormularioEstructuraCreateDto} from "../../../common/model/formulario-estructura/FormularioEstructuraCreateDto";
 import {FormularioEstructuraUpdateDto} from "../../../common/model/formulario-estructura/FormularioEstructuraUpdateDto";
+import {
+  FormularioEstructuraCompletaDto
+} from "../../../common/model/formulario-estructura/FormularioEstructuraCompletaDto";
+import {
+  GrupoPreguntaEstructuraUpdateOrdenDto
+} from "../../../common/model/preguntas/GrupoPreguntaEstructuraUpdateOrdenDto";
 
 @Injectable({
   providedIn: 'root'
@@ -22,11 +28,14 @@ export class FormulariosEstructuraService {
     return this.http.post<FormularioEstructura>(this.url, formularioEstructura);
   }
 
-  obtener(id: number) {
-    return this.http.get<FormularioEstructura>(`${this.url}/${id}`);
+  obtenerEstructuraCompleta(id: number) {
+    return this.http.get<FormularioEstructuraCompletaDto>(`${this.url}/${id}`);
   }
 
   editar(formularioEstructuraUpdateDto: FormularioEstructuraUpdateDto) {
     return this.http.put<FormularioEstructura>(this.url, formularioEstructuraUpdateDto);
   }
+
+
 }
+
