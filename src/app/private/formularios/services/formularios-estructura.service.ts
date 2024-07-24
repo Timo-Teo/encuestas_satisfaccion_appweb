@@ -8,8 +8,8 @@ import {
   FormularioEstructuraCompletaDto
 } from "../../../common/model/formulario-estructura/FormularioEstructuraCompletaDto";
 import {
-  GrupoPreguntaEstructuraUpdateOrdenDto
-} from "../../../common/model/preguntas/GrupoPreguntaEstructuraUpdateOrdenDto";
+  UpdateOrdenDto
+} from "../../../common/model/preguntas/UpdateOrdenDto";
 
 @Injectable({
   providedIn: 'root'

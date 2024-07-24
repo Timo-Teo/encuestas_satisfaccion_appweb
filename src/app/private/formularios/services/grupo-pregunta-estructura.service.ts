@@ -3,8 +3,8 @@ import {environment} from "../../../../environments/environment";
 import {HttpClient} from "@angular/common/http";
 import {GrupoPreguntaEstructura} from "../../../common/model/preguntas/GrupoPreguntaEstructura";
 import {
-  GrupoPreguntaEstructuraUpdateOrdenDto
-} from "../../../common/model/preguntas/GrupoPreguntaEstructuraUpdateOrdenDto";
+  UpdateOrdenDto
+} from "../../../common/model/preguntas/UpdateOrdenDto";
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class GrupoPreguntaEstructuraService {
     return this.http.get<GrupoPreguntaEstructura[]>(`${this.url}/formulario-estructura/${formularioEstructuraId}`);
   }
 
-  actualizarOrdenPorFormularioEstructuraId(id: number, grupoPreguntaEstructuraUpdateOrdenDtos: GrupoPreguntaEstructuraUpdateOrdenDto[]) {
-    return this.http.put<GrupoPreguntaEstructura[]>(`${this.url}/orden/formulario-estructura/${id}`, grupoPreguntaEstructuraUpdateOrdenDtos);
+  actualizarOrdenPorFormularioEstructuraId(id: number, grupoPreguntaEstructuraUpdateOrdenDtos: UpdateOrdenDto[]) {
+    return this.http.put(`${this.url}/orden/formulario-estructura/${id}`, grupoPreguntaEstructuraUpdateOrdenDtos);
   }
 }

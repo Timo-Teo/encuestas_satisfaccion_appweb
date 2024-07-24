@@ -1,41 +1,43 @@
-import { Component, OnInit } from '@angular/core';
-import { Button } from "primeng/button";
-import { DropdownModule } from "primeng/dropdown";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { InputTextModule } from "primeng/inputtext";
-import { PaginatorModule } from "primeng/paginator";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { TabViewModule } from "primeng/tabview";
-import { CurrencyPipe, NgClass, NgForOf, NgIf } from "@angular/common";
-import { Dependencia } from "../../../../common/model/dependencia/Dependencia";
-import { Periodo } from "../../../../common/model/Periodo";
-import { DependenciasService } from "../../../services/dependencias.service";
-import { PeriodosService } from "../../../services/periodos.service";
-import { FormulariosEstructuraService } from "../../services/formularios-estructura.service";
-import { ActivatedRoute, Router } from "@angular/router";
-import { forkJoin } from "rxjs";
+import {Component, OnInit} from '@angular/core';
+import {Button} from "primeng/button";
+import {DropdownModule} from "primeng/dropdown";
+import {FloatLabelModule} from "primeng/floatlabel";
+import {InputTextModule} from "primeng/inputtext";
+import {PaginatorModule} from "primeng/paginator";
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {TabViewModule} from "primeng/tabview";
+import {CurrencyPipe, NgClass, NgForOf, NgIf} from "@angular/common";
+import {Dependencia} from "../../../../common/model/dependencia/Dependencia";
+import {Periodo} from "../../../../common/model/Periodo";
+import {DependenciasService} from "../../../services/dependencias.service";
+import {PeriodosService} from "../../../services/periodos.service";
+import {FormulariosEstructuraService} from "../../services/formularios-estructura.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import {forkJoin} from "rxjs";
 import {
   FormularioEstructuraCreateDto
 } from "../../../../common/model/formulario-estructura/FormularioEstructuraCreateDto";
 import {
   FormularioEstructuraUpdateDto
 } from "../../../../common/model/formulario-estructura/FormularioEstructuraUpdateDto";
-import { FormularioEstructura } from "../../../../common/model/formulario-estructura/FormularioEstructura";
-import { InputSwitchModule } from "primeng/inputswitch";
-import { TagModule } from "primeng/tag";
-import { TableModule } from "primeng/table";
-import { ToastModule } from "primeng/toast";
-import { RatingModule } from "primeng/rating";
-import { GrupoPreguntaEstructuraService } from "../../services/grupo-pregunta-estructura.service";
-import { Ripple } from "primeng/ripple";
-import { MessageService } from "primeng/api";
-import { PreguntaFormularioEstructura } from "../../../../common/model/preguntas/PreguntaFormularioEstructura";
+import {FormularioEstructura} from "../../../../common/model/formulario-estructura/FormularioEstructura";
+import {InputSwitchModule} from "primeng/inputswitch";
+import {TagModule} from "primeng/tag";
+import {TableModule} from "primeng/table";
+import {ToastModule} from "primeng/toast";
+import {RatingModule} from "primeng/rating";
+import {GrupoPreguntaEstructuraService} from "../../services/grupo-pregunta-estructura.service";
+import {Ripple} from "primeng/ripple";
+import {MessageService} from "primeng/api";
 import {
-  FormularioEstructuraCompletaDto
+  FormularioEstructuraCompletaDto, GrupoPreguntaEstructuraDto, OpcionEstructuraDto
 } from "../../../../common/model/formulario-estructura/FormularioEstructuraCompletaDto";
 import {
-  GrupoPreguntaEstructuraUpdateOrdenDto
-} from "../../../../common/model/preguntas/GrupoPreguntaEstructuraUpdateOrdenDto";
+  UpdateOrdenDto
+} from "../../../../common/model/preguntas/UpdateOrdenDto";
+import {PreguntaFormularioEstructuraService} from "../../services/pregunta-formulario-estructura.service";
+import {OpcionEstructura} from "../../../../common/model/preguntas/OpcionEstructura";
+import {OpcionEstructuraService} from "../../services/opcion-estructura.service";
 
 @Component({
   selector: 'app-editar-formulario',
@@ -68,8 +70,9 @@ import {
 export class EditarFormularioComponent implements OnInit {
 
   formularioEstructura: FormularioEstructuraCompletaDto | null;
-  preguntasFormularioEstructura: PreguntaFormularioEstructura[];
-  grupoPreguntaEstructuraUpdateOrdenDtos: GrupoPreguntaEstructuraUpdateOrdenDto[];
+  grupoPreguntaEstructuraUpdateOrdenDtos: UpdateOrdenDto[];
+  preguntasFormularioEstructuraUpdateOrdenDtos: UpdateOrdenDto[];
+  opcionesEstructuraUpdateOrdenDtos: UpdateOrdenDto[];
   formularioEstructuraForm: FormGroup;
   dependencias: Dependencia[];
   periodos: Periodo[];
@@ -77,7 +80,9 @@ export class EditarFormularioComponent implements OnInit {
   columnasGrupoPreguntaEstructura: string[];
   columnasPreguntasFormularioEstructura: string[];
   columnasOpcionesEstructura: string[];
-  habilitarBotonGuardarOrden: boolean;
+  habilitarBotonGuardarOrdenGrupoPreguntas: boolean;
+  habilitarBotonGuardarOrdenPreguntas: boolean;
+  habilitarBotonGuardarOrdenOpciones: boolean;
 
   constructor(
     private builder: FormBuilder,
@@ -85,20 +90,25 @@ export class EditarFormularioComponent implements OnInit {
     private periodosService: PeriodosService,
     private formulariosEstructuraService: FormulariosEstructuraService,
     private grupoPreguntaEstructuraService: GrupoPreguntaEstructuraService,
+    private preguntasFormularioEstructuiraService: PreguntaFormularioEstructuraService,
+    private opcionesEstructuraService: OpcionEstructuraService,
     private router: Router,
     private route: ActivatedRoute,
   ) {
     this.formularioEstructura = null;
-    this.preguntasFormularioEstructura = [];
     this.dependencias = [];
     this.periodos = [];
     this.grupoPreguntaEstructuraUpdateOrdenDtos = [];
+    this.preguntasFormularioEstructuraUpdateOrdenDtos = [];
+    this.opcionesEstructuraUpdateOrdenDtos = [];
     this.vigencias = ["ACTIVO", "INACTIVO"];
-    this.columnasGrupoPreguntaEstructura = ['ID', 'Nombre', 'Orden']
-    this.columnasPreguntasFormularioEstructura = ['ID', 'Nombre', 'Opciones']
-    this.columnasOpcionesEstructura = ['ID', 'Nombre', 'Peso']
+    this.columnasGrupoPreguntaEstructura = ['ID', 'Nombre', 'Orden', 'Acciones']
+    this.columnasPreguntasFormularioEstructura = ['ID', 'Nombre', 'Orden', 'Acciones']
+    this.columnasOpcionesEstructura = ['ID', 'Nombre', 'Peso', 'Orden', 'Acciones']
     this.formularioEstructuraForm = new FormGroup({});
-    this.habilitarBotonGuardarOrden = false;
+    this.habilitarBotonGuardarOrdenGrupoPreguntas = false;
+    this.habilitarBotonGuardarOrdenPreguntas = false;
+    this.habilitarBotonGuardarOrdenOpciones = false;
     this.construirFormulario();
   }
 
@@ -232,7 +242,7 @@ export class EditarFormularioComponent implements OnInit {
   }
 
 
-  onRowReorder(event: any) {
+  onRowReorderGrupoEstrcutura(event: any) {
     console.log(event);
     const itemsOriginales = [...this.formularioEstructura!.gruposPreguntaEstructura].sort((a, b) => a.orden - b.orden);
     const itemsNuevoOrden = [...this.formularioEstructura!.gruposPreguntaEstructura];
@@ -241,24 +251,28 @@ export class EditarFormularioComponent implements OnInit {
 
     this.grupoPreguntaEstructuraUpdateOrdenDtos = itemsNuevoOrden
       .map((item, index) =>
-        ({ id: item.id, orden: index + 1 }))
-      .filter(({ id, orden }) => {
+        ({id: item.id, orden: index + 1}))
+      .filter(({id, orden}) => {
         const originalIndex = originalOrderMap.get(id);
         return originalIndex !== undefined && originalIndex !== (orden - 1);
       });
 
-    this.habilitarBotonGuardarOrden = true;
+    this.grupoPreguntaEstructuraUpdateOrdenDtos.length > 0 ?
+      this.habilitarBotonGuardarOrdenGrupoPreguntas = true :
+      this.habilitarBotonGuardarOrdenGrupoPreguntas = false;
   }
 
-  onGuardarOrden() {
+  onGuardarOrdenGrupos() {
     this.grupoPreguntaEstructuraService.actualizarOrdenPorFormularioEstructuraId(
       this.formularioEstructura!.id,
       this.grupoPreguntaEstructuraUpdateOrdenDtos
     ).subscribe({
       next: () => {
+        this.formularioEstructura?.gruposPreguntaEstructura.forEach((grupo, index) => {
+          grupo.orden = index + 1;
+        })
         this.grupoPreguntaEstructuraUpdateOrdenDtos = [];
-        this.obtenerFormulario(this.formularioEstructura!.id);
-        this.habilitarBotonGuardarOrden = false;
+        this.habilitarBotonGuardarOrdenGrupoPreguntas = false;
       },
       error: (error) => {
         console.error(error);
@@ -267,4 +281,136 @@ export class EditarFormularioComponent implements OnInit {
   }
 
 
+  onEliminarGrupoPreguntaEstructura(grupoPreguntaEstructura: any) {
+
+  }
+
+  onEditarGrupoPreguntaEstructura(grupoPreguntaEstructura: any) {
+
+  }
+
+  onEditarPreguntaFormularioEstructura(preguntaFormularioEstructura: any) {
+
+  }
+
+  onEliminarPreguntaFormularioEstructura(preguntaFormularioEstructura: any) {
+
+  }
+
+  onEditarOpcionEstructura(opcionEstructura: any) {
+
+  }
+
+  onEliminarOpcionEstructura(opcionEstructura: any) {
+
+  }
+
+  onRowReorderPreguntaFormularioEstructura(evet: any, grupoPreguntaEstructuraId: any) {
+    const id = +grupoPreguntaEstructuraId;
+    const grupo = this.formularioEstructura?.gruposPreguntaEstructura.find(grupo => grupo.id === id);
+    const itemsOriginales = [...grupo!.preguntasFormularioEstructura].sort((a, b) => a.orden - b.orden);
+    const itemsNuevoOrden = [...grupo!.preguntasFormularioEstructura];
+
+    const originalOrderMap = new Map(itemsOriginales.map((item, index) => [item.id, index]));
+
+    this.preguntasFormularioEstructuraUpdateOrdenDtos = itemsNuevoOrden
+      .map((item, index) =>
+        ({id: item.id, orden: index + 1}))
+      .filter(({id, orden}) => {
+        const originalIndex = originalOrderMap.get(id);
+        return originalIndex !== undefined && originalIndex !== (orden - 1);
+      });
+
+    this.preguntasFormularioEstructuraUpdateOrdenDtos.length > 0 ?
+      this.habilitarBotonGuardarOrdenPreguntas = true :
+      this.habilitarBotonGuardarOrdenPreguntas = false;
+
+  }
+
+  onGuardarOrdenPreguntas(grupoPreguntaEstructura: GrupoPreguntaEstructuraDto) {
+    this.preguntasFormularioEstructuiraService.actualizarOrdenPorGrupoEstructuraId(
+      grupoPreguntaEstructura.id,
+      this.preguntasFormularioEstructuraUpdateOrdenDtos
+    ).subscribe({
+      next: () => {
+        const grupo = this.formularioEstructura?.gruposPreguntaEstructura.find(grupo => grupo.id === grupoPreguntaEstructura.id);
+
+        if (grupo) {
+          grupo.preguntasFormularioEstructura.forEach((pregunta, index) => {
+            pregunta.orden = index + 1;
+          });
+
+          this.formularioEstructura = {
+            ...this.formularioEstructura!,
+            gruposPreguntaEstructura: this.formularioEstructura!.gruposPreguntaEstructura.map(g =>
+              g.id === grupoPreguntaEstructura.id ? grupo : g
+            )
+          };
+        }
+        this.preguntasFormularioEstructuraUpdateOrdenDtos = [];
+        this.habilitarBotonGuardarOrdenPreguntas = false;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+
+
+  onRowReorderOpcionEstructura(event: any, grupoId: any, preguntaFormularioId: any) {
+    const grupo = this.formularioEstructura?.gruposPreguntaEstructura.find(grupo => grupo.id === +grupoId);
+    const pregunta = grupo?.preguntasFormularioEstructura.find(pregunta => pregunta.id === +preguntaFormularioId);
+    const itemsOriginales = [...pregunta!.opcionesEstructura].sort((a, b) => a.orden - b.orden);
+    const itemsNuevoOrden = [...pregunta!.opcionesEstructura];
+
+    const originalOrderMap = new Map(itemsOriginales.map((item, index) => [item.id, index]));
+
+    this.opcionesEstructuraUpdateOrdenDtos = itemsNuevoOrden
+      .map((item, index) =>
+        ({id: item.id, orden: index + 1}))
+      .filter(({id, orden}) => {
+        const originalIndex = originalOrderMap.get(id);
+        return originalIndex !== undefined && originalIndex !== (orden - 1);
+      });
+
+    this.opcionesEstructuraUpdateOrdenDtos.length > 0 ?
+      this.habilitarBotonGuardarOrdenOpciones = true :
+      this.habilitarBotonGuardarOrdenOpciones = false;
+
+  }
+
+  onGuardarOrdenOpciones(preguntaFormularioEstructura: OpcionEstructuraDto) {
+    this.opcionesEstructuraService.actualizarOrdenPorPreguntaFormularioEstructuraId(
+      preguntaFormularioEstructura.id,
+      this.opcionesEstructuraUpdateOrdenDtos
+    ).subscribe({
+      next: () => {
+        const grupo = this.formularioEstructura?.gruposPreguntaEstructura.find(grupo => grupo.id === preguntaFormularioEstructura.id);
+        const pregunta = grupo?.preguntasFormularioEstructura.find(pregunta => pregunta.id === preguntaFormularioEstructura.id);
+
+        if (pregunta) {
+          pregunta.opcionesEstructura.forEach((opcion, index) => {
+            opcion.orden = index + 1;
+          });
+
+          this.formularioEstructura = {
+            ...this.formularioEstructura!,
+            gruposPreguntaEstructura: this.formularioEstructura!.gruposPreguntaEstructura.map(g =>
+              g.id === grupo!.id ? {
+                ...g,
+                preguntasFormularioEstructura: g.preguntasFormularioEstructura.map(p =>
+                  p.id === preguntaFormularioEstructura.id ? pregunta : p
+                )
+              } : g
+            )
+          };
+        }
+        this.opcionesEstructuraUpdateOrdenDtos = [];
+        this.habilitarBotonGuardarOrdenOpciones = false;
+      },
+      error: (error: any) => {
+        console.error(error);
+      }
+    });
+  }
 }

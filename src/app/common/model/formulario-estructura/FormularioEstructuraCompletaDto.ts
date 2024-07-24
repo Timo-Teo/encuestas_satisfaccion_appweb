@@ -48,6 +48,7 @@ export interface GrupoPreguntaEstructuraDto {
 export interface PreguntaFormularioEstructuraDto {
   id: number
   nombre: string
+  orden: number
   opcionesEstructura: OpcionEstructuraDto[]
 }
 
@@ -55,4 +56,5 @@ export interface OpcionEstructuraDto {
   id: number
   nombre: string
   peso?: number
+  orden: number
 }

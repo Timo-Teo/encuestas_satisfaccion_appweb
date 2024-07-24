@@ -79,17 +79,17 @@
         <div class="card">
           <div class="menu-orden-container">
             <p-button
-              *ngIf="habilitarBotonGuardarOrden"
+              *ngIf="habilitarBotonGuardarOrdenGrupoPreguntas"
               label="Guardar orden"
               icon="pi pi-save"
-              (click)="onGuardarOrden()"
+              (click)="onGuardarOrdenGrupos()"
             ></p-button>
           </div>
           <p-toast></p-toast>
           <p-table
             [value]="formularioEstructura.gruposPreguntaEstructura"
             [tableStyle]="{ 'min-width': '60rem' }"
-            (onRowReorder)="onRowReorder($event)"
+            (onRowReorder)="onRowReorderGrupoEstrcutura($event)"
             dataKey="id"
           >
             <ng-template pTemplate="header">
@@ -122,7 +122,7 @@
                 <td>{{ grupoPreguntaEstructura.id }}</td>
                 <td>{{ grupoPreguntaEstructura.nombre }}</td>
                 <td>
-                  <div class="orden_container">
+                  <div class="flex-container">
                     <p-tag
                       [value]="grupoPreguntaEstructura.orden"
                       severity="info"/>
@@ -133,16 +133,43 @@
                       severity="danger"/>
                   </div>
                 </td>
+                <td class="flex-container">
+                  <p-button
+                    icon="pi pi-pencil"
+                    [rounded]="true"
+                    severity="success"
+                    (click)="onEditarGrupoPreguntaEstructura(grupoPreguntaEstructura)"
+                  ></p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    severity="danger"
+                    [rounded]="true"
+                    (click)="onEliminarGrupoPreguntaEstructura(grupoPreguntaEstructura)"
+                  ></p-button>
+                </td>
               </tr>
             </ng-template>
             <ng-template pTemplate="rowexpansion" let-grupoPreguntaEstructura>
               <tr>
                 <td colspan="5">
                   <div class="p-3">
+                    <div class="menu-orden-container">
+                      <p-button
+                        *ngIf="habilitarBotonGuardarOrdenPreguntas"
+                        label="Guardar orden"
+                        icon="pi pi-save"
+                        (click)="onGuardarOrdenPreguntas(grupoPreguntaEstructura)"
+                      ></p-button>
+                    </div>
                     <p-toast></p-toast>
-                    <p-table [value]="grupoPreguntaEstructura.preguntasFormularioEstructura" dataKey="id">
+                    <p-table
+                      [value]="grupoPreguntaEstructura.preguntasFormularioEstructura"
+                      dataKey="grupoPreguntaEstructura.id"
+                      (onRowReorder)="onRowReorderPreguntaFormularioEstructura($event   , grupoPreguntaEstructura.id )"
+                    >
                       <ng-template pTemplate="header">
                         <tr>
+                          <th style="width:3rem"></th>
                           <th style="width:3rem"></th>
                           <th *ngFor="let col of columnasPreguntasFormularioEstructura">
                             {{ col }}
@@ -153,8 +180,12 @@
                         pTemplate="body"
                         let-preguntaFormularioEstructura
                         let-expanded="expanded"
+                        let-indexPregunta="rowIndex"
                       >
-                        <tr>
+                        <tr [pReorderableRow]="indexPregunta">
+                          <td>
+                            <span class="pi pi-bars" pReorderableRowHandle></span>
+                          </td>
                           <td>
                             <p-button
                               type="button" pRipple [pRowToggler]="preguntaFormularioEstructura"
@@ -165,6 +196,31 @@
                           </td>
                           <td>{{ preguntaFormularioEstructura.id }}</td>
                           <td>{{ preguntaFormularioEstructura.nombre }}</td>
+                          <td>
+                            <div class="flex-container">
+                              <p-tag
+                                [value]="preguntaFormularioEstructura.orden"
+                                severity="info"/>
+                              <p-tag
+                                *ngIf="(indexPregunta + 1) !== preguntaFormularioEstructura.orden"
+                                [value]="indexPregunta + 1"
+                                severity="danger"/>
+                            </div>
+                          </td>
+                          <td class="flex-container">
+                            <p-button
+                              icon="pi pi-pencil"
+                              [rounded]="true"
+                              severity="success"
+                              (click)="onEditarPreguntaFormularioEstructura(preguntaFormularioEstructura)"
+                            ></p-button>
+                            <p-button
+                              icon="pi pi-trash"
+                              severity="danger"
+                              [rounded]="true"
+                              (click)="onEliminarPreguntaFormularioEstructura(preguntaFormularioEstructura)"
+                            ></p-button>
+                          </td>
                         </tr>
                       </ng-template>
                       <ng-template pTemplate="rowexpansion" let-preguntaFormularioEstructura>
@@ -172,9 +228,22 @@
                           <td colspan="4">
                             <div class="p-3">
                               <p-toast></p-toast>
-                              <p-table [value]="preguntaFormularioEstructura.opcionesEstructura" dataKey="id">
+                              <div class="menu-orden-container">
+                                <p-button
+                                  *ngIf="habilitarBotonGuardarOrdenOpciones"
+                                  label="Guardar orden"
+                                  icon="pi pi-save"
+                                  (click)="onGuardarOrdenOpciones(preguntaFormularioEstructura)"
+                                ></p-button>
+                              </div>
+                              <p-table
+                                [value]="preguntaFormularioEstructura.opcionesEstructura"
+                                dataKey="id"
+                                (onRowReorder)="onRowReorderOpcionEstructura($event,grupoPreguntaEstructura.id, preguntaFormularioEstructura.id)"
+                              >
                                 <ng-template pTemplate="header">
                                   <tr>
+                                    <th style="width:3rem"></th>
                                     <th *ngFor="let col of columnasOpcionesEstructura">
                                       {{ col }}
                                     </th>
@@ -183,11 +252,39 @@
                                 <ng-template
                                   pTemplate="body"
                                   let-opcionEstructura
+                                  let-indexOpcion="rowIndex"
                                 >
-                                  <tr>
+                                  <tr [pReorderableRow]="indexOpcion">
+                                    <td>
+                                      <span class="pi pi-bars" pReorderableRowHandle></span>
+                                    </td>
                                     <td>{{ opcionEstructura.id }}</td>
                                     <td>{{ opcionEstructura.nombre }}</td>
                                     <td>{{ opcionEstructura.peso }}</td>
+                                    <td>
+                                      <div class="flex-container">
+                                        <p-tag
+                                          [value]="opcionEstructura.orden"
+                                          severity="info"/>
+                                        <p-tag
+                                          *ngIf="(indexOpcion + 1) !== opcionEstructura.orden"
+                                          [value]="indexOpcion + 1"
+                                          severity="danger"/>
+                                      </div>
+                                    </td>
+                                    <td class="flex-container">
+                                      <p-button
+                                        icon="pi pi-pencil"
+                                        [rounded]="true"
+                                        severity="success"
+                                        (click)="onEditarOpcionEstructura(opcionEstructura)"
+                                      ></p-button>
+                                      <p-button
+                                        icon="pi pi-trash"
+                                        severity="danger"
+                                        [rounded]="true"
+                                        (click)="onEliminarOpcionEstructura(opcionEstructura)"
+                                      ></p-button>
                                   </tr>
                                 </ng-template>
                               </p-table>
